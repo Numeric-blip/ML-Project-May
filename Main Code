@@ -1,0 +1,191 @@
+Instructions:-
+
+1. Import the dataset.
+
+2. Data quality check:
+
+ a. Check if null values are present. If there are, drop those rows.
+
+3. Exploratory Data Analysis:
+
+ a. Univariate Analysis:
+
+   i. Draw a minimum of 5 histograms .
+
+   ii. Draw boxplots for each numerical columns.
+
+ b. Bivariate analysis:
+
+   i. Draw a minimum of 5 scatter plots
+
+4. Modelling:
+
+ a. Split the dataset using “train-test-split” function.
+
+ b. Apply KNN classification on “quality” column of the dataset. Select the appropriate features
+
+ c. Predict on the test set.
+
+ d. Find out the accuracy.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+
+!pip install xlrd
+df=pd.read_excel('DS1.xlsx') ##I saved the file as an Excel file with .xlsx 
+print(df)
+
+df.isnull() #checking for null values
+
+df.isnull().sum() #adding null values to check any instances of 'NaN'||'Null'
+
+#All the values tend to 0, so there doesn't exist any Null value in the dataset
+
+df2 = df.set_index("fixed acidity", drop = False) #setting "fixed acidity" as a primary key
+
+print(df2)
+
+
+h = df['density']
+bins = 50
+plt.hist(h,bins)
+plt.title("histogram (1)")
+plt.xlabel("density(water)")
+plt.ylabel("Frequency")
+plt.show()
+
+h = df['quality']
+bins = 10
+
+plt.hist(h,bins)
+plt.title("histogram (2)")
+plt.xlabel("quality of wine")
+plt.ylabel("Frequency")
+plt.show()
+
+h = df['chlorides']
+bins = 20
+
+plt.hist(h,bins)
+plt.title("histogram (3)")
+plt.xlabel("Chloride concentration")
+plt.ylabel("Frequency")
+plt.show()
+
+h = df['pH']
+bins = 10
+
+plt.hist(h,bins)
+plt.title("histogram (4)")
+plt.xlabel("pH")
+plt.ylabel("Frequency")
+plt.show()
+
+h = df['alcohol']
+bins = 10
+plt.hist(h,bins)
+plt.title("histogram (5)")
+plt.xlabel("Alcohol content")
+plt.ylabel("Frequency")
+plt.show()
+
+x=df2["pH"]
+y=df2["alcohol"]
+import numpy as np
+import matplotlib.pyplot as plt
+plt.scatter(x,y, label='dot', color='k', s=3, marker="o")
+
+plt.xlabel('pH')
+plt.ylabel('alcohol')
+plt.title('pH vs Alchohol')
+plt.legend()
+plt.show()
+#BIVARIATE ANALYSIS 1
+
+x=df2["pH"]
+y=df2["quality"]
+plt.scatter(x,y, label='dot', color='k', s=10, marker="o")
+
+plt.xlabel('pH')
+plt.ylabel('quality')
+plt.title('pH vs quality')
+plt.legend()
+plt.show()
+#BIVARIATE ANALYSIS 2
+
+x=df2["citric acid"]
+y=df2["quality"]
+plt.scatter(x,y, label='dot', color='k', s=11, marker="o")
+
+plt.xlabel('citric acid')
+plt.ylabel('quality')
+plt.title('citric vs quality')
+plt.legend()
+plt.show()
+#BIVARIATE ANALYSIS 3
+
+x=df2["chlorides"]
+y=df2["quality"]
+plt.scatter(x,y, label='dot', color='k', s=11, marker="o")
+
+plt.xlabel('chlorides')
+plt.ylabel('quality')
+plt.title('chlorides vs quality')
+plt.legend()
+plt.show()
+#BIVARIATE ANALYSIS 4
+
+x=df2["free sulfur dioxide"]
+y=df2["total sulfur dioxide"]
+plt.scatter(x,y, label='dot', color='k', s=7, marker="o")
+
+plt.xlabel('free sulfur dioxide')
+plt.ylabel('total sulfur dioxide')
+plt.title('free sulfur dioxide vs total sulfur dioxide')
+plt.legend()
+plt.show()
+#BIVARIATE ANALYSIS 5
+
+boxplot = df.boxplot(column=['quality','alcohol','fixed acidity','citric acid','residual sugar'])
+
+boxplot = df.boxplot(column=['sulphates','density','pH','volatile acidity','chlorides'])
+
+boxplot = df.boxplot(column=['free sulfur dioxide','total sulfur dioxide',])
+
+#Modelling the Dataset
+
+!pip install sklearn
+from sklearn.model_selection import train_test_split
+
+x = df[['fixed acidity','citric acid','residual sugar','sulphates','alcohol']]
+y = df[['quality']]
+print(x.shape)
+print(y.shape)
+
+from sklearn.preprocessing import LabelEncoder
+le =LabelEncoder()
+y= le.fit_transform(y)
+
+train_x,test_x,train_y,test_y=train_test_split(x,y,test_size=0.10 , random_state=9,shuffle=True)
+
+s_c = StandardScaler()
+train_x=s_c.fit_transform(train_x)
+test_x=s_c.fit_transform(test_x)
+
+Knn = KNeighborsClassifier()
+Knn.fit(train_x,train_y)  ##default neighbours=5,p=2
+
+y_pred=Knn.predict(test_x)
+y_pred
+
+c = confusion_matrix(test_y,y_pred)
+print(c)
+
+
+print("Wrong values predicted  : ")
+print((test_y!=y_pred).sum(),'/',((test_y==y_pred).sum()+(test_y!=y_pred).sum()))
+
+
+print('Accuracy using KNN is : ',100*accuracy_score(test_y,y_pred))
